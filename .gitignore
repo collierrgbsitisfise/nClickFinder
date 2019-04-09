@@ -1,0 +1,8 @@
+#packages
+node_modules/
+
+#compiled javascript
+dist/
+
+#env - generted after $ENV={envname} npm run setup command
+.env
