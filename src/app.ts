@@ -7,5 +7,5 @@ import ParseWikiPageService from './services/parseWikiPage';
   const html = await httpService.getPageSource(startLink);
 
   const pws = new ParseWikiPageService(html);
-  console.log(pws.getBodyLinks());
+  console.log(pws.getContentLinks());
 })();

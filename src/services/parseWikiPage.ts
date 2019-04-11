@@ -31,7 +31,7 @@ class ParseWikiPageService {
     return this.content;
   }
 
-  getBodyLinks(): { text: string; href: string }[] {
+  getContentLinks(): { text: string; href: string }[] {
     const result = <{ text: string; href: string }[]>[];
 
     const $ = cheerio.load(this.content);
