@@ -1,9 +1,25 @@
 import * as cheerio from 'cheerio';
 
 class ParseWikiPageService {
+  private static baseWikiURL: string = 'https://en.wikipedia.org';
+  private static internalRootPath: string = 'wiki';
+
   private html: string;
   private content: string;
   private $: CheerioStatic;
+
+  static getBaseWikiUrl(): string {
+    return this.baseWikiURL;
+  }
+
+  static getInternalRootPathWikiUrl(): string {
+    return this.internalRootPath;
+  }
+
+  static isInternalWikiLink(href: string) {
+    const isCorrectInternal = String(href).split('/')[1] === this.internalRootPath;
+    return isCorrectInternal;
+  }
 
   constructor(html: string) {
     this.html = html;
@@ -15,17 +31,20 @@ class ParseWikiPageService {
     return this.content;
   }
 
-  getBodyLinks(): { name: string; href: string }[] {
-    const result = <{ name: string; href: string }[]>[];
+  getBodyLinks(): { text: string; href: string }[] {
+    const result = <{ text: string; href: string }[]>[];
 
     const $ = cheerio.load(this.content);
     const links = $('a');
 
     $(links).each((_, link) => {
-      result.push({
-        name: $(link).text(),
-        href: $(link).attr('href'),
-      });
+      const text = $(link).text();
+      const href = $(link).attr('href');
+      ParseWikiPageService.isInternalWikiLink(href) &&
+        result.push({
+          text,
+          href: `${ParseWikiPageService.baseWikiURL}${href}`,
+        });
     });
 
     return result;
