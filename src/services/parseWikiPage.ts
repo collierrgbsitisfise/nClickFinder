@@ -31,6 +31,10 @@ class ParseWikiPageService {
     return this.content;
   }
 
+  getPageContenWithoutHtml(): string {
+    return this.content.replace(/<\/?[^>]+(>|$)/g, '');
+  }
+
   getContentLinks(): { text: string; href: string }[] {
     const result = <{ text: string; href: string }[]>[];
 
