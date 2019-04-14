@@ -1,37 +1,62 @@
 import HttpService from './services/http';
 import ParseWikiPageService from './services/parseWikiPage';
 import TextAnalyzer from './services/textAnalyzer';
-import * as fs from 'fs';
 
-const getLinkPriority = (linkText: string, token: string[]) => {};
+let currentLink = '';
+let visitedLinks = <string[]>[];
+let linksQueue = <{ text: string; href: string; priority: number }[]>[];
+
+const getNextLink = (): string => {
+  if (linksQueue.length === 0) {
+    throw Error('link queue is empty');
+  }
+
+  let potentialNextLink = linksQueue.shift();
+
+  if (!visitedLinks.includes(potentialNextLink.href)) {
+    return potentialNextLink.href;
+  }
+
+  return getNextLink();
+};
 
 (async () => {
-  const startLink = 'https://en.wikipedia.org/wiki/New_York_City'.toLowerCase();
+  // init input
+  const starttLink = 'https://en.wikipedia.org/wiki/New_York_City'.toLowerCase();
   const endLink = 'https://en.wikipedia.org/wiki/Silicon_Valley'.toLowerCase();
 
+  currentLink = starttLink;
+
+  // init ST service sercie class
   const httpService = new HttpService();
 
-  const htmlOfStartLink = await httpService.getPageSource(startLink);
+  // obtaing info about end page
   const htmlOfEndLink = await httpService.getPageSource(endLink);
-
-  const wikiPageOfStartLink = new ParseWikiPageService(htmlOfStartLink);
   const wikiPageOfEndLink = new ParseWikiPageService(htmlOfEndLink);
-
-  const contentOfStartLink = wikiPageOfStartLink.getPageContent();
   const contentOfEndLink = wikiPageOfEndLink.getPageContent();
-
-  const linksOfStartLink = wikiPageOfStartLink.getContentLinks();
 
   // content.replace(/<(?:.|\n)*?>/gm, '') - delete all symbols related to HTML
   const taOfEndLink = new TextAnalyzer(contentOfEndLink.replace(/<(?:.|\n)*?>/gm, ''));
   taOfEndLink.tokenizeAndStemText();
   const endLinkTokens = taOfEndLink.getTokenizedText();
 
-  // console.log(endLinkTokens);
-  for (let link of linksOfStartLink) {
-    let priority = TextAnalyzer.getPharsePriotyByTokens(link.text, endLinkTokens);
-    link.priority = priority;
-    // console.log(`${link.text} : ${priority}`);
+  while (true) {
+    const htmlOfcurrentLink = await httpService.getPageSource(currentLink);
+    const wikiPageOfcurrentLink = new ParseWikiPageService(htmlOfcurrentLink);
+    let linksByPriority = wikiPageOfcurrentLink.getContentLinks();
+    visitedLinks.push(currentLink);
+
+    for (let link of linksByPriority) {
+      if (link.href.toLowerCase() === endLink.toLowerCase()) {
+        return visitedLinks;
+      }
+
+      let priority = TextAnalyzer.getPharsePriotyByTokens(link.text, endLinkTokens);
+      link.priority = priority;
+    }
+
+    linksQueue = [...linksByPriority, ...linksQueue].sort((a, b) => b.priority - a.priority);
+
+    currentLink = getNextLink();
   }
-  fs.writeFileSync('logs.json', JSON.stringify(linksOfStartLink.sort((a, b) => b.priority - a.priority), null, '\t'));
 })();

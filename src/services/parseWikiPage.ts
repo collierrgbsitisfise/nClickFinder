@@ -44,10 +44,21 @@ class ParseWikiPageService {
     $(links).each((_, link) => {
       const text = $(link).text();
       const href = $(link).attr('href');
+
+      // ignore link without text
+      if (!text) {
+        return;
+      }
+
+      // ignore link to images
+      if (['png', 'svg', 'jpg', 'jpeg'].includes((href || '').split('.').pop())) {
+        return;
+      }
+
       ParseWikiPageService.isInternalWikiLink(href) &&
         result.push({
           text,
-          href: `${ParseWikiPageService.baseWikiURL}${href}`.toLowerCase(),
+          href: `${ParseWikiPageService.baseWikiURL}${href}`,
           priority: 0,
         });
     });
