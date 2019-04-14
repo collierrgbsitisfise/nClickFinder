@@ -1,6 +1,7 @@
 import * as nlp from 'natural';
 const tokenizer = new nlp.AggressiveTokenizer();
 
+const hashMapOfResultsForTokensSearch = new Map();
 class TextAnalyzer {
   private text: string;
   private tokenizedText: string[];
@@ -30,8 +31,15 @@ class TextAnalyzer {
     let isInTokensWord = false;
     let priority = 0;
     for (let word of stemedPharse) {
-      isInTokensWord = !!(tokens.findIndex((t) => t.toLowerCase() === word.toLocaleLowerCase()) + 1);
-      isInTokensWord && priority++;
+      const isCached = hashMapOfResultsForTokensSearch.get(word);
+
+      if (typeof isCached === 'undefined') {
+        isInTokensWord = !!(tokens.findIndex((t) => t.toLowerCase() === word.toLowerCase()) + 1);
+        hashMapOfResultsForTokensSearch.set(word, isInTokensWord);
+        isInTokensWord && priority++;
+      } else {
+        isCached && priority++;
+      }
     }
 
     return priority;
