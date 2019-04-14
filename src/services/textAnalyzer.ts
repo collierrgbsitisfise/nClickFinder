@@ -1,5 +1,5 @@
 import * as nlp from 'natural';
-const tokenizer = new nlp.WordTokenizer();
+const tokenizer = new nlp.AggressiveTokenizer();
 
 class TextAnalyzer {
   private text: string;
@@ -21,8 +21,20 @@ class TextAnalyzer {
     return this.tokenizedText;
   }
 
-  tokenizeText(): void {
-    this.tokenizedText = tokenizer.tokenize(this.text);
+  tokenizeAndStemText(): void {
+    this.tokenizedText = tokenizer.tokenize(this.text).map(nlp.PorterStemmer.stem);
+  }
+
+  static getPharsePriotyByTokens(phrase: string, tokens: string[]) {
+    const stemedPharse = phrase.split(' ').map(nlp.PorterStemmer.stem);
+    let isInTokensWord = false;
+    let priority = 0;
+    for (let word of stemedPharse) {
+      isInTokensWord = !!(tokens.findIndex((t) => t.toLowerCase() === word.toLocaleLowerCase()) + 1);
+      isInTokensWord && priority++;
+    }
+
+    return priority;
   }
 }
 

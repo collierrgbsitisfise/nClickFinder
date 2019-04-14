@@ -24,7 +24,7 @@ class ParseWikiPageService {
   constructor(html: string) {
     this.html = html;
     this.$ = cheerio.load(html);
-    this.content = this.$('#content').html();
+    this.content = this.$('#mw-content-text').html();
   }
 
   getPageContent(): string {
@@ -35,8 +35,8 @@ class ParseWikiPageService {
     return this.content.replace(/<\/?[^>]+(>|$)/g, '');
   }
 
-  getContentLinks(): { text: string; href: string }[] {
-    const result = <{ text: string; href: string }[]>[];
+  getContentLinks(): { text: string; href: string; priority: number }[] {
+    const result = <{ text: string; href: string; priority: number }[]>[];
 
     const $ = cheerio.load(this.content);
     const links = $('a');
@@ -47,7 +47,8 @@ class ParseWikiPageService {
       ParseWikiPageService.isInternalWikiLink(href) &&
         result.push({
           text,
-          href: `${ParseWikiPageService.baseWikiURL}${href}`,
+          href: `${ParseWikiPageService.baseWikiURL}${href}`.toLowerCase(),
+          priority: 0,
         });
     });
 
