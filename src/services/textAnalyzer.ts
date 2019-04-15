@@ -30,7 +30,7 @@ class TextAnalyzer {
     this.tokenizedText = tokenizer.tokenize(this.text).map(nlp.PorterStemmer.stem);
   }
 
-  getPharsePriotyByTokens(phrase: string) {
+  getPharsePrioty(phrase: string) {
     const stemedPharse = phrase.split(' ').map(nlp.PorterStemmer.stem);
     let isInTokensWord = false;
     let priority = 0;

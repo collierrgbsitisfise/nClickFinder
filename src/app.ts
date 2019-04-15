@@ -53,7 +53,7 @@ const getNextLink = (): string => {
         return visitedLinks;
       }
 
-      let priority = taOfEndLink.getPharsePriotyByTokens(link.text);
+      let priority = taOfEndLink.getPharsePrioty(link.text.toLowerCase());
       link.priority = priority;
     }
 
