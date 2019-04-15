@@ -1,4 +1,7 @@
 import * as nlp from 'natural';
+import { prepositions } from './../utils/prepositions';
+import { articles } from './../utils/articles';
+
 const tokenizer = new nlp.AggressiveTokenizer();
 
 const hashMapOfResultsForTokensSearch = new Map();
@@ -43,6 +46,11 @@ class TextAnalyzer {
     }
 
     return priority;
+  }
+
+  static filterTokensByPrepositionsAndArticles(tokens: string[]) {
+    const articlesAndPrepositions = [...articles, ...prepositions];
+    return tokens.filter((token: string) => !articlesAndPrepositions.includes(token.toLowerCase()));
   }
 }
 

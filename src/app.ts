@@ -40,23 +40,27 @@ const getNextLink = (): string => {
   taOfEndLink.tokenizeAndStemText();
   const endLinkTokens = taOfEndLink.getTokenizedText();
 
-  while (true) {
-    const htmlOfcurrentLink = await httpService.getPageSource(currentLink);
-    const wikiPageOfcurrentLink = new ParseWikiPageService(htmlOfcurrentLink);
-    let linksByPriority = wikiPageOfcurrentLink.getContentLinks();
-    visitedLinks.push(currentLink);
+  console.log('end link tokens');
+  console.log(TextAnalyzer.filterTokensByPrepositionsAndArticles(endLinkTokens));
+  // while (true) {
+  //   const htmlOfcurrentLink = await httpService.getPageSource(currentLink);
+  //   const wikiPageOfcurrentLink = new ParseWikiPageService(htmlOfcurrentLink);
+  //   let linksByPriority = wikiPageOfcurrentLink.getContentLinks();
+  //   visitedLinks.push(currentLink);
 
-    for (let link of linksByPriority) {
-      if (link.href.toLowerCase() === endLink.toLowerCase()) {
-        return visitedLinks;
-      }
+  //   for (let link of linksByPriority) {
+  //     if (link.href.toLowerCase() === endLink.toLowerCase()) {
+  //       console.log('solution was found');
+  //       console.log(visitedLinks);
+  //       return visitedLinks;
+  //     }
 
-      let priority = TextAnalyzer.getPharsePriotyByTokens(link.text, endLinkTokens);
-      link.priority = priority;
-    }
+  //     let priority = TextAnalyzer.getPharsePriotyByTokens(link.text, endLinkTokens);
+  //     link.priority = priority;
+  //   }
 
-    linksQueue = [...linksByPriority, ...linksQueue].sort((a, b) => b.priority - a.priority);
+  //   linksQueue = [...linksByPriority, ...linksQueue].sort((a, b) => b.priority - a.priority);
 
-    currentLink = getNextLink();
-  }
+  //   currentLink = getNextLink();
+  // }
 })();
