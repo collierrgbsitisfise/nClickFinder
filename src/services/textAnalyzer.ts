@@ -1,6 +1,7 @@
 import * as nlp from 'natural';
 import { prepositions } from './../utils/prepositions';
 import { articles } from './../utils/articles';
+import { conjunctions } from './../utils/conjunctions';
 
 const tokenizer = new nlp.AggressiveTokenizer();
 
@@ -29,7 +30,7 @@ class TextAnalyzer {
     this.tokenizedText = tokenizer.tokenize(this.text).map(nlp.PorterStemmer.stem);
   }
 
-  static getPharsePriotyByTokens(phrase: string, tokens: string[]) {
+  getPharsePriotyByTokens(phrase: string) {
     const stemedPharse = phrase.split(' ').map(nlp.PorterStemmer.stem);
     let isInTokensWord = false;
     let priority = 0;
@@ -37,7 +38,7 @@ class TextAnalyzer {
       const isCached = hashMapOfResultsForTokensSearch.get(word);
 
       if (typeof isCached === 'undefined') {
-        isInTokensWord = !!(tokens.findIndex((t) => t.toLowerCase() === word.toLowerCase()) + 1);
+        isInTokensWord = !!(this.tokenizedText.findIndex((t) => t.toLowerCase() === word.toLowerCase()) + 1);
         hashMapOfResultsForTokensSearch.set(word, isInTokensWord);
         isInTokensWord && priority++;
       } else {
@@ -48,9 +49,9 @@ class TextAnalyzer {
     return priority;
   }
 
-  static filterTokensByPrepositionsAndArticles(tokens: string[]) {
-    const articlesAndPrepositions = [...articles, ...prepositions];
-    return tokens.filter((token: string) => !articlesAndPrepositions.includes(token.toLowerCase()));
+  static filterTokens(tokens: string[]) {
+    const articlesPrepositionsAndConjunctions = [...articles, ...prepositions, ...conjunctions];
+    return tokens.filter((token: string) => !articlesPrepositionsAndConjunctions.includes(token.toLowerCase()));
   }
 }
 
