@@ -40,19 +40,15 @@ class TextAnalyzer {
   }
 
   getPharsePrioty(phrase: string) {
-    const stemedPharse = phrase.split(' ').map(nlp.PorterStemmer.stem);
+    const stemedPharse = phrase.split(' ').map((p) => nlp.PorterStemmer.stem(p.toLowerCase()));
     let isInTokensWord = false;
     let priority = 0;
-    for (let word of stemedPharse) {
-      const isCached = hashMapOfResultsForTokensSearch.get(word);
+    let updatePriority = (key: string) => {
+      priority += this.tokensWeightMap[key] || 0;
+    };
 
-      if (typeof isCached === 'undefined') {
-        isInTokensWord = !!(this.tokenizedText.findIndex((t) => t.toLowerCase() === word.toLowerCase()) + 1);
-        hashMapOfResultsForTokensSearch.set(word, isInTokensWord);
-        isInTokensWord && priority++;
-      } else {
-        isCached && priority++;
-      }
+    for (let word of stemedPharse) {
+      updatePriority(word);
     }
 
     return priority;

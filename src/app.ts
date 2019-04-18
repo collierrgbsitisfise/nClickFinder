@@ -41,31 +41,34 @@ const getNextLink = (): string => {
   taOfEndLink.tokenizeAndStemText();
   taOfEndLink.calculateWeighgtOfTokens();
 
-  const tokens = taOfEndLink.getTokenizedText();
-  const filteredTokens = TextAnalyzer.filterTokens(tokens);
-  const tokensWeightMap = taOfEndLink.getTokensWeightMap();
+  // const tokens = taOfEndLink.getTokenizedText();
+  // const filteredTokens = TextAnalyzer.filterTokens(tokens);
+  // const tokensWeightMap = taOfEndLink.getTokensWeightMap();
   // fs.writeFileSync('notFiltered.json', JSON.stringify(tokensWeightMap, null, '\t'));
   // fs.writeFileSync('filtered.json', JSON.stringify(filteredTokens, null, '\t'));
-  // while (true) {
-  //   console.log('currentLink ', currentLink);
-  //   const htmlOfcurrentLink = await httpService.getPageSource(currentLink);
-  //   const wikiPageOfcurrentLink = new ParseWikiPageService(htmlOfcurrentLink);
-  //   let linksByPriority = wikiPageOfcurrentLink.getContentLinks();
-  //   visitedLinks.push(currentLink);
+  while (true) {
+    console.log('currentLink ', currentLink);
+    const htmlOfcurrentLink = await httpService.getPageSource(currentLink);
+    const wikiPageOfcurrentLink = new ParseWikiPageService(htmlOfcurrentLink);
+    let linksByPriority = wikiPageOfcurrentLink.getContentLinks();
+    visitedLinks.push(currentLink);
 
-  //   for (let link of linksByPriority) {
-  //     if (link.href.toLowerCase() === endLink.toLowerCase()) {
-  //       console.log('solution was found');
-  //       console.log(visitedLinks.length);
-  //       return visitedLinks;
-  //     }
+    for (let link of linksByPriority) {
+      if (link.href.toLowerCase() === endLink.toLowerCase()) {
+        console.log('solution was found');
+        console.log(visitedLinks.length);
+        fs.writeFileSync('reuslt.json', JSON.stringify(visitedLinks, null, '\t'));
+        return visitedLinks;
+      }
 
-  //     let priority = taOfEndLink.getPharsePrioty(link.text.toLowerCase());
-  //     link.priority = priority;
-  //   }
+      let priority = taOfEndLink.getPharsePrioty(link.text.toLowerCase());
+      link.priority = priority;
+    }
 
-  //   linksQueue = [...linksByPriority, ...linksQueue].sort((a, b) => b.priority - a.priority);
+    linksQueue = [...linksByPriority, ...linksQueue].sort((a, b) => b.priority - a.priority);
 
-  //   currentLink = getNextLink();
-  // }
+    // console.log('LINKS ');
+    // console.log(linksQueue.splice(0, 10));
+    currentLink = getNextLink();
+  }
 })();
