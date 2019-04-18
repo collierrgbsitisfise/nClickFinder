@@ -5,6 +5,8 @@ let currentLink = '';
 let visitedLinks = <string[]>[];
 let linksQueue = <{ text: string; href: string; priority: number }[]>[];
 
+import * as fs from 'fs';
+
 const getNextLink = (): string => {
   if (linksQueue.length === 0) {
     throw Error('link queue is empty');
@@ -37,28 +39,33 @@ const getNextLink = (): string => {
   // content.replace(/<(?:.|\n)*?>/gm, '') - delete all symbols related to HTML
   const taOfEndLink = new TextAnalyzer(contentOfEndLink.replace(/<(?:.|\n)*?>/gm, ''));
   taOfEndLink.tokenizeAndStemText();
-  const endLinkTokens = taOfEndLink.getTokenizedText();
+  taOfEndLink.calculateWeighgtOfTokens();
 
-  while (true) {
-    console.log('currentLink ', currentLink);
-    const htmlOfcurrentLink = await httpService.getPageSource(currentLink);
-    const wikiPageOfcurrentLink = new ParseWikiPageService(htmlOfcurrentLink);
-    let linksByPriority = wikiPageOfcurrentLink.getContentLinks();
-    visitedLinks.push(currentLink);
+  const tokens = taOfEndLink.getTokenizedText();
+  const filteredTokens = TextAnalyzer.filterTokens(tokens);
+  const tokensWeightMap = taOfEndLink.getTokensWeightMap();
+  // fs.writeFileSync('notFiltered.json', JSON.stringify(tokensWeightMap, null, '\t'));
+  // fs.writeFileSync('filtered.json', JSON.stringify(filteredTokens, null, '\t'));
+  // while (true) {
+  //   console.log('currentLink ', currentLink);
+  //   const htmlOfcurrentLink = await httpService.getPageSource(currentLink);
+  //   const wikiPageOfcurrentLink = new ParseWikiPageService(htmlOfcurrentLink);
+  //   let linksByPriority = wikiPageOfcurrentLink.getContentLinks();
+  //   visitedLinks.push(currentLink);
 
-    for (let link of linksByPriority) {
-      if (link.href.toLowerCase() === endLink.toLowerCase()) {
-        console.log('solution was found');
-        console.log(visitedLinks.length);
-        return visitedLinks;
-      }
+  //   for (let link of linksByPriority) {
+  //     if (link.href.toLowerCase() === endLink.toLowerCase()) {
+  //       console.log('solution was found');
+  //       console.log(visitedLinks.length);
+  //       return visitedLinks;
+  //     }
 
-      let priority = taOfEndLink.getPharsePrioty(link.text.toLowerCase());
-      link.priority = priority;
-    }
+  //     let priority = taOfEndLink.getPharsePrioty(link.text.toLowerCase());
+  //     link.priority = priority;
+  //   }
 
-    linksQueue = [...linksByPriority, ...linksQueue].sort((a, b) => b.priority - a.priority);
+  //   linksQueue = [...linksByPriority, ...linksQueue].sort((a, b) => b.priority - a.priority);
 
-    currentLink = getNextLink();
-  }
+  //   currentLink = getNextLink();
+  // }
 })();

@@ -9,6 +9,7 @@ const hashMapOfResultsForTokensSearch = new Map();
 class TextAnalyzer {
   private text: string;
   private tokenizedText: string[];
+  private tokensWeightMap: { [index: string]: number };
 
   constructor(text: string) {
     this.text = text;
@@ -26,8 +27,16 @@ class TextAnalyzer {
     return this.tokenizedText;
   }
 
+  getTokensWeightMap() {
+    if (!this.tokensWeightMap) {
+      throw Error('Token weight map was not created yet, user "calculateWeighgtOfTokens" method');
+    }
+
+    return this.tokensWeightMap;
+  }
+
   tokenizeAndStemText(): void {
-    this.tokenizedText = tokenizer.tokenize(this.text).map(nlp.PorterStemmer.stem);
+    this.tokenizedText = tokenizer.tokenize(this.text).map((token) => nlp.PorterStemmer.stem(token.toLowerCase()));
   }
 
   getPharsePrioty(phrase: string) {
@@ -47,6 +56,16 @@ class TextAnalyzer {
     }
 
     return priority;
+  }
+
+  calculateWeighgtOfTokens() {
+    this.tokensWeightMap = this.tokenizedText.reduce(
+      (acc: { [index: string]: number }, curr: string) => ({
+        ...acc,
+        [curr]: acc[curr] ? ++acc[curr] : 1,
+      }),
+      {},
+    );
   }
 
   static filterTokens(tokens: string[]) {
