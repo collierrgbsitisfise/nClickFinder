@@ -4,6 +4,7 @@ import TextAnalyzer from './services/textAnalyzer';
 let currentLink = '';
 let visitedLinks = new Map();
 let linksQueue = <{ text: string; href: string; priority: number }[]>[];
+import * as fs from 'fs';
 
 const getNextLink = (): string => {
   if (linksQueue.length === 0) {
@@ -13,6 +14,7 @@ const getNextLink = (): string => {
   let potentialNextLink = linksQueue.shift();
 
   if (!visitedLinks.get(potentialNextLink.href)) {
+    console.log(potentialNextLink);
     return potentialNextLink.href;
   }
 
@@ -21,7 +23,7 @@ const getNextLink = (): string => {
 
 (async () => {
   // init input
-  const starttLink = 'https://en.wikipedia.org/wiki/New_York_City'.toLowerCase();
+  const starttLink = 'https://en.wikipedia.org/wiki/Elon_Musk'.toLowerCase();
   const endLink = 'https://en.wikipedia.org/wiki/Moldova'.toLowerCase();
 
   currentLink = starttLink;
@@ -48,6 +50,7 @@ const getNextLink = (): string => {
 
       for (let link of linksByPriority) {
         if (link.href.toLowerCase() === endLink.toLowerCase()) {
+          fs.writeFileSync('result.json', JSON.stringify(visitedLinks, null, '\t'));
           return visitedLinks;
         }
 

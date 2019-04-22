@@ -36,7 +36,10 @@ class TextAnalyzer {
   }
 
   tokenizeAndStemText(): void {
-    this.tokenizedText = tokenizer.tokenize(this.text).map((token) => nlp.PorterStemmer.stem(token.toLowerCase()));
+    this.tokenizedText = tokenizer
+      .tokenize(this.text)
+      .map((token) => nlp.PorterStemmer.stem(token.toLowerCase()))
+      .filter((token) => /^[a-z]+$/i.test(token));
   }
 
   getPharsePrioty(phrase: string) {
