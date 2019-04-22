@@ -41,7 +41,6 @@ class TextAnalyzer {
 
   getPharsePrioty(phrase: string) {
     const stemedPharse = phrase.split(' ').map((p) => nlp.PorterStemmer.stem(p.toLowerCase()));
-    let isInTokensWord = false;
     let priority = 0;
     let updatePriority = (key: string) => {
       priority += this.tokensWeightMap[key] || 0;

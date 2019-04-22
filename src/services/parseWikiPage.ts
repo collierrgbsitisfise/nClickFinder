@@ -45,7 +45,6 @@ class ParseWikiPageService {
       const text = $(link).text();
       const href = $(link).attr('href');
 
-      // ignore link without text
       if (!text) {
         return;
       }
@@ -57,7 +56,7 @@ class ParseWikiPageService {
 
       ParseWikiPageService.isInternalWikiLink(href) &&
         result.push({
-          text,
+          text: text.toLowerCase(),
           href: `${ParseWikiPageService.baseWikiURL}${href}`,
           priority: 0,
         });
