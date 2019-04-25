@@ -4,7 +4,6 @@ import TextAnalyzer from './services/textAnalyzer';
 let currentLink = '';
 let visitedLinks = new Map();
 let linksQueue = <{ text: string; href: string; priority: number }[]>[];
-import * as fs from 'fs';
 
 const getNextLink = (): string => {
   if (linksQueue.length === 0) {
@@ -28,7 +27,7 @@ const getNextLink = (): string => {
 
   currentLink = starttLink;
 
-  // init ST service sercie class
+  // init ST service class
   const httpService = new HttpService();
 
   // obtaing info about end page
@@ -50,7 +49,7 @@ const getNextLink = (): string => {
 
       for (let link of linksByPriority) {
         if (link.href.toLowerCase() === endLink.toLowerCase()) {
-          fs.writeFileSync('result.json', JSON.stringify(visitedLinks, null, '\t'));
+          console.log('TOTAL links visited : ', visitedLinks.size);
           return visitedLinks;
         }
 

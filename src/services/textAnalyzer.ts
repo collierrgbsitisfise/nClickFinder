@@ -5,7 +5,6 @@ import { conjunctions } from './../utils/conjunctions';
 
 const tokenizer = new nlp.AggressiveTokenizer();
 
-const hashMapOfResultsForTokensSearch = new Map();
 class TextAnalyzer {
   private text: string;
   private tokenizedText: string[];
@@ -36,10 +35,12 @@ class TextAnalyzer {
   }
 
   tokenizeAndStemText(): void {
-    this.tokenizedText = tokenizer
-      .tokenize(this.text)
-      .map((token) => nlp.PorterStemmer.stem(token.toLowerCase()))
-      .filter((token) => /^[a-z]+$/i.test(token));
+    this.tokenizedText = this.filterTokensFromCommonWords(
+      tokenizer
+        .tokenize(this.text)
+        .map((token) => nlp.PorterStemmer.stem(token.toLowerCase()))
+        .filter((token) => /^[a-z]+$/i.test(token)),
+    );
   }
 
   getPharsePrioty(phrase: string) {
@@ -66,7 +67,7 @@ class TextAnalyzer {
     );
   }
 
-  static filterTokens(tokens: string[]) {
+  private filterTokensFromCommonWords(tokens: string[]) {
     const articlesPrepositionsAndConjunctions = [...articles, ...prepositions, ...conjunctions];
     return tokens.filter((token: string) => !articlesPrepositionsAndConjunctions.includes(token.toLowerCase()));
   }
