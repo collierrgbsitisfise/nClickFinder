@@ -22,8 +22,8 @@ const getNextLink = (): string => {
 
 (async () => {
   // init input
-  const starttLink = 'https://en.wikipedia.org/wiki/Elon_Musk'.toLowerCase();
-  const endLink = 'https://en.wikipedia.org/wiki/Moldova'.toLowerCase();
+  const starttLink = 'https://en.wikipedia.org/wiki/New_York_City'.toLowerCase();
+  const endLink = 'https://en.wikipedia.org/wiki/Silicon_Valley'.toLowerCase();
 
   currentLink = starttLink;
 
