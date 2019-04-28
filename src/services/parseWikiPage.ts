@@ -1,4 +1,7 @@
 import * as cheerio from 'cheerio';
+import HttpService from './http';
+
+const httpSercice = new HttpService();
 
 class ParseWikiPageService {
   private static baseWikiURL: string = 'https://en.wikipedia.org';
@@ -61,6 +64,17 @@ class ParseWikiPageService {
           priority: 0,
         });
     });
+
+    return result;
+  }
+
+  static async getAllBiDerectionalLinks(childLinks: string[], baseLink: string): Promise<string[]> {
+    const result = <string[]>[];
+
+    for (let childLink of childLinks) {
+      let htmlContent = await httpSercice.getPageSource(childLink);
+      ParseWikiPageService.isBiDirectionalLinkedChildPages(baseLink, htmlContent) && result.push(childLink);
+    }
 
     return result;
   }
