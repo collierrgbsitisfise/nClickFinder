@@ -34,35 +34,41 @@ const getNextLink = (): string => {
   const htmlOfEndLink = await httpService.getPageSource(endLink);
   const wikiPageOfEndLink = new ParseWikiPageService(htmlOfEndLink);
   const contentOfEndLink = wikiPageOfEndLink.getPageContent();
+  const linkOfEndPage = wikiPageOfEndLink.getContentLinks();
+  const hrefsOnlyOfEndPage = linkOfEndPage.map(({ href }) => href);
+  const biDirectionalLinksOfEndPage = await ParseWikiPageService.getAllBiDerectionalLinks(
+    hrefsOnlyOfEndPage,
+    'https://en.wikipedia.org/wiki/Silicon_Valley',
+  );
 
   // content.replace(/<(?:.|\n)*?>/gm, '') - delete all symbols related to HTML
   const taOfEndLink = new TextAnalyzer(contentOfEndLink.replace(/<(?:.|\n)*?>/gm, ''));
   taOfEndLink.tokenizeAndStemText();
   taOfEndLink.calculateWeighgtOfTokens();
 
-  while (true) {
-    try {
-      const htmlOfcurrentLink = await httpService.getPageSource(currentLink);
-      const wikiPageOfcurrentLink = new ParseWikiPageService(htmlOfcurrentLink);
-      let linksByPriority = wikiPageOfcurrentLink.getContentLinks();
-      visitedLinks.set(currentLink, true);
+  // while (true) {
+  //   try {
+  //     const htmlOfcurrentLink = await httpService.getPageSource(currentLink);
+  //     const wikiPageOfcurrentLink = new ParseWikiPageService(htmlOfcurrentLink);
+  //     let linksByPriority = wikiPageOfcurrentLink.getContentLinks();
+  //     visitedLinks.set(currentLink, true);
 
-      for (let link of linksByPriority) {
-        if (link.href.toLowerCase() === endLink.toLowerCase()) {
-          console.log('TOTAL links visited : ', visitedLinks.size);
-          return visitedLinks;
-        }
+  //     for (let link of linksByPriority) {
+  //       if (link.href.toLowerCase() === endLink.toLowerCase()) {
+  //         console.log('TOTAL links visited : ', visitedLinks.size);
+  //         return visitedLinks;
+  //       }
 
-        let priority = taOfEndLink.getPharsePrioty(link.text.toLowerCase());
-        link.priority = priority;
-      }
+  //       let priority = taOfEndLink.getPharsePrioty(link.text.toLowerCase());
+  //       link.priority = priority;
+  //     }
 
-      linksQueue = [...linksByPriority, ...linksQueue].sort((a, b) => b.priority - a.priority);
+  //     linksQueue = [...linksByPriority, ...linksQueue].sort((a, b) => b.priority - a.priority);
 
-      currentLink = getNextLink();
-    } catch (err) {
-      visitedLinks.set(currentLink, true);
-      currentLink = getNextLink();
-    }
-  }
+  //     currentLink = getNextLink();
+  //   } catch (err) {
+  //     visitedLinks.set(currentLink, true);
+  //     currentLink = getNextLink();
+  //   }
+  // }
 })();

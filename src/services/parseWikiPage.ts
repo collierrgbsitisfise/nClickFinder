@@ -73,7 +73,9 @@ class ParseWikiPageService {
 
     for (let childLink of childLinks) {
       let htmlContent = await httpSercice.getPageSource(childLink);
-      ParseWikiPageService.isBiDirectionalLinkedChildPages(baseLink, htmlContent) && result.push(childLink);
+      if (ParseWikiPageService.isBiDirectionalLinkedChildPages(baseLink, htmlContent)) {
+        result.push(childLink);
+      }
     }
 
     return result;
@@ -88,7 +90,11 @@ class ParseWikiPageService {
     $(links).each((_, link) => {
       const href = $(link).attr('href');
 
-      if (href.toLowerCase() === wikiPageLink.toLowerCase()) {
+      if (['png', 'svg', 'jpg', 'jpeg'].includes((href || '').split('.').pop())) {
+        return;
+      }
+
+      if (ParseWikiPageService.isInternalWikiLink(href) && href.toLowerCase() === wikiPageLink.toLowerCase()) {
         return true;
       }
     });
