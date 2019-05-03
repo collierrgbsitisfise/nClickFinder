@@ -24,7 +24,6 @@ const getNextLink = (): string => {
   // init input
   const starttLink = 'https://en.wikipedia.org/wiki/New_York_City'.toLowerCase();
   const endLink = 'https://en.wikipedia.org/wiki/Silicon_Valley'.toLowerCase();
-
   currentLink = starttLink;
 
   // init ST service class
@@ -35,17 +34,28 @@ const getNextLink = (): string => {
   const wikiPageOfEndLink = new ParseWikiPageService(htmlOfEndLink);
   const contentOfEndLink = wikiPageOfEndLink.getPageContent();
   const linkOfEndPage = wikiPageOfEndLink.getContentLinks();
-  const hrefsOnlyOfEndPage = linkOfEndPage.map(({ href }) => href);
+
+  // content.replace(/<(?:.|\n)*?>/gm, '') - delete all symbols related to HTML
+  const tagOfEndLink = new TextAnalyzer(contentOfEndLink.replace(/<(?:.|\n)*?>/gm, ''));
+  tagOfEndLink.tokenizeAndStemText();
+  tagOfEndLink.calculateWeighgtOfTokens();
+
+  for (let link of linkOfEndPage) {
+    let priority = tagOfEndLink.getPharsePrioty(link.text.toLowerCase());
+    link.priority = priority;
+  }
+  const top10LinksOfEndLink = linkOfEndPage.sort((a, b) => b.priority - a.priority).slice(0, 10);
+  const hrefsOnlyOfTop10EndPageLinks = top10LinksOfEndLink.map(({ href }) => href);
+
+  console.log('hrefsOnlyOfTop10EndPageLinks');
+  console.log(hrefsOnlyOfTop10EndPageLinks);
   const biDirectionalLinksOfEndPage = await ParseWikiPageService.getAllBiDerectionalLinks(
-    hrefsOnlyOfEndPage,
+    hrefsOnlyOfTop10EndPageLinks,
     'https://en.wikipedia.org/wiki/Silicon_Valley',
   );
 
-  // content.replace(/<(?:.|\n)*?>/gm, '') - delete all symbols related to HTML
-  const taOfEndLink = new TextAnalyzer(contentOfEndLink.replace(/<(?:.|\n)*?>/gm, ''));
-  taOfEndLink.tokenizeAndStemText();
-  taOfEndLink.calculateWeighgtOfTokens();
-
+  console.log('linkOfEndPage');
+  console.log(biDirectionalLinksOfEndPage);
   // while (true) {
   //   try {
   //     const htmlOfcurrentLink = await httpService.getPageSource(currentLink);
@@ -59,7 +69,7 @@ const getNextLink = (): string => {
   //         return visitedLinks;
   //       }
 
-  //       let priority = taOfEndLink.getPharsePrioty(link.text.toLowerCase());
+  //       let priority = tagOfEndLink.getPharsePrioty(link.text.toLowerCase());
   //       link.priority = priority;
   //     }
 

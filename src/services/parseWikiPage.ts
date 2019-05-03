@@ -82,6 +82,8 @@ class ParseWikiPageService {
   }
 
   static isBiDirectionalLinkedChildPages(wikiPageLink: string, htmlContent: string) {
+    let isBidirectionalLink = false;
+
     const cheerioHTML = cheerio.load(htmlContent);
     const content = cheerioHTML('#mw-content-text').html();
     const $ = cheerio.load(content);
@@ -94,12 +96,15 @@ class ParseWikiPageService {
         return;
       }
 
-      if (ParseWikiPageService.isInternalWikiLink(href) && href.toLowerCase() === wikiPageLink.toLowerCase()) {
-        return true;
+      if (
+        ParseWikiPageService.isInternalWikiLink(href) &&
+        (ParseWikiPageService.baseWikiURL + href).toLowerCase() === wikiPageLink.toLowerCase()
+      ) {
+        isBidirectionalLink = true;
       }
     });
 
-    return false;
+    return isBidirectionalLink;
   }
 }
 
