@@ -28,7 +28,7 @@ class TextAnalyzer {
 
   getTokensWeightMap() {
     if (!this.tokensWeightMap) {
-      throw Error('Token weight map was not created yet, user "calculateWeighgtOfTokens" method');
+      throw Error('Token weight map was not created yet, use "calculateWeighgtOfTokens" method');
     }
 
     return this.tokensWeightMap;

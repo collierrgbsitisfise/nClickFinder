@@ -22,8 +22,8 @@ const getNextLink = (): string => {
 
 (async () => {
   // init input
-  const starttLink = 'https://en.wikipedia.org/wiki/New_York_City'.toLowerCase();
-  const endLink = 'https://en.wikipedia.org/wiki/Silicon_Valley'.toLowerCase();
+  const starttLink = 'https://en.wikipedia.org/wiki/New_York_City';
+  const endLink = 'https://en.wikipedia.org/wiki/Silicon_Valley';
   currentLink = starttLink;
 
   // init ST service class
@@ -47,15 +47,14 @@ const getNextLink = (): string => {
   const top10LinksOfEndLink = linkOfEndPage.sort((a, b) => b.priority - a.priority).slice(0, 10);
   const hrefsOnlyOfTop10EndPageLinks = top10LinksOfEndLink.map(({ href }) => href);
 
-  console.log('hrefsOnlyOfTop10EndPageLinks');
-  console.log(hrefsOnlyOfTop10EndPageLinks);
   const biDirectionalLinksOfEndPage = await ParseWikiPageService.getAllBiDerectionalLinks(
     hrefsOnlyOfTop10EndPageLinks,
-    'https://en.wikipedia.org/wiki/Silicon_Valley',
+    endLink,
   );
 
-  console.log('linkOfEndPage');
+  console.log('biDirectionalLinksOfEndPage');
   console.log(biDirectionalLinksOfEndPage);
+
   // while (true) {
   //   try {
   //     const htmlOfcurrentLink = await httpService.getPageSource(currentLink);

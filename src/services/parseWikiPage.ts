@@ -68,13 +68,23 @@ class ParseWikiPageService {
     return result;
   }
 
-  static async getAllBiDerectionalLinks(childLinks: string[], baseLink: string): Promise<string[]> {
-    const result = <string[]>[];
+  static async getAllBiDerectionalLinks(
+    childLinks: string[],
+    baseLink: string,
+  ): Promise<{ href: string; content: string }[]> {
+    const result = <{ href: string; content: string }[]>[];
 
     for (let childLink of childLinks) {
       let htmlContent = await httpSercice.getPageSource(childLink);
       if (ParseWikiPageService.isBiDirectionalLinkedChildPages(baseLink, htmlContent)) {
-        result.push(childLink);
+        // conntent without html;
+        const cheerioHTML = cheerio.load(htmlContent);
+        const content = cheerioHTML('#mw-content-text').html();
+
+        result.push({
+          href: childLink,
+          content: content.replace(/<\/?[^>]+(>|$)/g, ''),
+        });
       }
     }
 
