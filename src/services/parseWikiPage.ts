@@ -83,7 +83,7 @@ class ParseWikiPageService {
 
         result.push({
           href: childLink,
-          content: content.replace(/<\/?[^>]+(>|$)/g, ''),
+          content: content.replace(/<(?:.|\n)*?>/gm, ''),
         });
       }
     }

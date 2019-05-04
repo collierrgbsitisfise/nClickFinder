@@ -52,32 +52,37 @@ const getNextLink = (): string => {
     endLink,
   );
 
-  console.log('biDirectionalLinksOfEndPage');
-  console.log(biDirectionalLinksOfEndPage);
+  let contentOfBidirectialLink = '';
 
-  // while (true) {
-  //   try {
-  //     const htmlOfcurrentLink = await httpService.getPageSource(currentLink);
-  //     const wikiPageOfcurrentLink = new ParseWikiPageService(htmlOfcurrentLink);
-  //     let linksByPriority = wikiPageOfcurrentLink.getContentLinks();
-  //     visitedLinks.set(currentLink, true);
+  for (let biDirectionalLinkOfEndPage of biDirectionalLinksOfEndPage) {
+    contentOfBidirectialLink += ' ' + biDirectionalLinkOfEndPage.content;
+  }
 
-  //     for (let link of linksByPriority) {
-  //       if (link.href.toLowerCase() === endLink.toLowerCase()) {
-  //         console.log('TOTAL links visited : ', visitedLinks.size);
-  //         return visitedLinks;
-  //       }
+  tagOfEndLink.addAdditionalText(contentOfBidirectialLink);
 
-  //       let priority = tagOfEndLink.getPharsePrioty(link.text.toLowerCase());
-  //       link.priority = priority;
-  //     }
+  while (true) {
+    try {
+      const htmlOfcurrentLink = await httpService.getPageSource(currentLink);
+      const wikiPageOfcurrentLink = new ParseWikiPageService(htmlOfcurrentLink);
+      let linksByPriority = wikiPageOfcurrentLink.getContentLinks();
+      visitedLinks.set(currentLink, true);
 
-  //     linksQueue = [...linksByPriority, ...linksQueue].sort((a, b) => b.priority - a.priority);
+      for (let link of linksByPriority) {
+        if (link.href.toLowerCase() === endLink.toLowerCase()) {
+          console.log('TOTAL links visited : ', visitedLinks.size);
+          return visitedLinks;
+        }
 
-  //     currentLink = getNextLink();
-  //   } catch (err) {
-  //     visitedLinks.set(currentLink, true);
-  //     currentLink = getNextLink();
-  //   }
-  // }
+        let priority = tagOfEndLink.getPharsePrioty(link.text.toLowerCase());
+        link.priority = priority;
+      }
+
+      linksQueue = [...linksByPriority, ...linksQueue].sort((a, b) => b.priority - a.priority);
+
+      currentLink = getNextLink();
+    } catch (err) {
+      visitedLinks.set(currentLink, true);
+      currentLink = getNextLink();
+    }
+  }
 })();

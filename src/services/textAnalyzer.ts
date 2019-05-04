@@ -14,6 +14,12 @@ class TextAnalyzer {
     this.text = text;
   }
 
+  addAdditionalText(text: string) {
+    this.text += text;
+    this.tokenizeAndStemText();
+    this.calculateWeighgtOfTokens();
+  }
+
   getText(): any {
     return this.text;
   }
